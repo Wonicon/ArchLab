@@ -32,7 +32,7 @@ assign AND_out = A_in & B_in;
 assign EOR_out = A_in ^ B_in;
 assign OR_out = A_in | B_in;
 assign {Carry, CAL_out} = A_mod + B_mod + Cin_mod;
-assign BIC_MVN_out = ({DATAWIDTH{(~ALU_op[0])}} | A_in) & ~B_in;
+assign BIC_MVN_out = ({DATAWIDTH{ALU_op[0]}} | A_in) & ~B_in;
 assign AND_EOR_out = ALU_op[0] ? EOR_out : AND_out;
 assign OR_MOV_out = ALU_op[0] ? A_in : OR_out;
 
