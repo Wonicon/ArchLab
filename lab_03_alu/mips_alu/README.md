@@ -7,9 +7,9 @@
 | 0010        | 000          | 前导0            |
 | 0011        | 000          | 前导1            |
 | 0100        | 100          | 加法(不产生溢出) |
-| 0101        | 101          | 小于置位         |
+| 0101        | 101          | slt/slti         |
 | 0110        | 010          | 或               |
-| 0111        | 101          | 无符号小于置位   |
+| 0111        | 101          | sltu/sltiu       |
 | 1000        | 011          | 或非             |
 | 1001        | 001          | 异或             |
 | 1010        | 110          | seb              |
@@ -69,3 +69,14 @@ return n - x;
 assign {carry_out, out} = A + B + carry_in;
 ```
 这样实际上是在做33位加法，跟用`long long`实现64位乘法，用Java、Python等实现大数运算一样，~~做了等于没做~~。
+
+个别指令含义：
+
+|指令 |含义                               |
+|-----|-----------------------------------|
+|slt  |set on less than                   |
+|slti |set on less than immediate         |
+|sltu |set on less than unsigned          |
+|sltiu|set on less than immediate unsigned|
+|seb  |sign extend byte                   |
+|seh  |sign extend halfword               |
