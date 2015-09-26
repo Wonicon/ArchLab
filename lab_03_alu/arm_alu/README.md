@@ -1,0 +1,2 @@
+Of the two source operands, one is always a register. The other is called a shifter operand and is either an immediate value or a register.
+If the second operand is a register value, it can have a shift applied to it.
