@@ -76,6 +76,28 @@ negative和zero这种应该是和ALU_out相关而不是和内部加法器的结�
 
 **查看ARM手册，了解每个操作具体影响哪些标志位！**
 
+| 指令        | 标志位说明                                           |
+|-------------|------------------------------------------------------|
+| SUB,SBC,RSB | N=Rd[31], Z=(Rd==0), C=**Not**BorrowFrom, V=OverflowFrom |
+| ADD,ADC     | N=Rd[31], Z=(Rd==0), C=CarryFrom, V=OverflowFrom         |
+| AND, ORR | N=Rd[31], Z=(Rd==0), C=shift_carry_out/cin, V=unaffected
+
+| 指令 | N        | Z         | C                 | V              |
+|------|----------|-----------|-------------------|----------------|
+| ADC  | N=Rd[31] | Z=(Rd==0) | C=CarryFrom       | V=OverflowFrom |
+| ADD  | N=Rd[31] | Z=(Rd==0) | C=CarryFrom       | V=OverflowFrom |
+| AND  | N=Rd[31] | Z=(Rd==0) | C=shift_carry_out | V=unaffected   |
+| BIC  | N=Rd[31] | Z=(Rd==0) | C=shift_carry_out | V=unaffected   |
+| CMN  | N=Rd[31] | Z=(Rd==0) | C=NotCarryFrom    | V=OverflowFrom |
+| CMP  | N=Rd[31] | Z=(Rd==0) | C=NotCarryFrom    | V=OverflowFrom |
+| EOR  | N=Rd[31] | Z=(Rd==0) | C=shift_carry_out | V=unaffected   |
+| MOV  | N=Rd[31] | Z=(Rd==0) | C=shift_carry_out | V=unaffected   |
+| MVN  | N=Rd[31] | Z=(Rd==0) | C=shift_carry_out | V=unaffected   |
+| ORR  | N=Rd[31] | Z=(Rd==0) | C=shift_carry_out | V=unaffected   |
+| RSB  | N=Rd[31] | Z=(Rd==0) | C=NotCarryFrom    | V=OverflowFrom |
+| RSC  | N=Rd[31] | Z=(Rd==0) | C=NotCarryFrom    | V=OverflowFrom |
+
+
 逻辑操作方面也可以做一些合并。首先输出结果写不写到寄存器和标志输出写不写到CPSR上应该由外部的控制器决定。
 由于ALU可以为一个指令（比如乘法）使用多次，那么由ALU来维护状态我感觉是不必要的。
 我认为有些场合是需要控制器连续使用ALU并且只有最后结果是有意义的（比如乘除法），

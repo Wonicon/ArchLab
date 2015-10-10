@@ -15,6 +15,7 @@ module arm_alu #(parameter DATAWIDTH = 32) (
 reg Cin_mod;
 wire [3:0] OP_mod;
 assign OP_mod = {ALU_op[3], ~ALU_op[2], ALU_op[1:0]};
+wire [DATAWIDTH-1:0] AND_out, EOR_out, OR_out, CAL_out, BIC_MVN_out, AND_EOR_out, OR_MOV_out;
 wire [DATAWIDTH-1:0] A_mod_en, B_mod_en, Cin_mod_en, A_mod, B_mod;
 assign A_mod_en = {DATAWIDTH{~ALU_op[3] & ALU_op[1] & ALU_op[0]}}; // A neg when 0111 0011 but can't 1011
 assign B_mod_en = {DATAWIDTH{ALU_op[1] & ~ALU_op[0]}}; // B neg when 0010 0110 1010 and 1110 don't care
@@ -31,7 +32,6 @@ end
 assign {Carry, CAL_out} = A_mod + B_mod + Cin_mod;
 
 // Logic
-wire [DATAWIDTH-1:0] AND_out, EOR_out, OR_out, CAL_out, BIC_MVN_out, AND_EOR_out, OR_MOV_out;
 assign AND_out = A_in & B_in;
 assign EOR_out = A_in ^ B_in;
 assign OR_out = A_in | B_in;

@@ -5,7 +5,7 @@ module clz #(parameter DATAWIDTH = 32, WIDTH = $clog2(DATAWIDTH)) (
     output [DATAWIDTH - 1:0] cnt
 );
 
-wire [WIDTH:0] count [WIDTH - 1:0];
+wire [WIDTH:0] count;
 wire [DATAWIDTH - 1:0] x [WIDTH - 1:0];
 wire [DATAWIDTH - 1:0] n [WIDTH - 1:0];
 
@@ -24,22 +24,23 @@ generate
     for (i = 0; i < WIDTH; i = i + 1) begin
         if (i == WIDTH - 1) begin
             assign x[i] = in[DATAWIDTH - 1 : 2**i];
-            assign count[i] = (x[i] == 0) ? 2**i : 0;
+            assign count[i] = !(x[i] == 0);
             assign n[i-1] = (x[i] == 0) ? in[2**i - 1 : 0] : x[i]; 
         end
         else if (i == 0) begin
             assign x[i] = n[i][2**(i+1) - 1 : 2**i];
-            assign count[i] = (x[i] == 0) ? (count[i + 1] | 1) : count[i + 1];
+            assign count[i] = !(x[i] == 0);
         end
         else begin
             assign x[i] = n[i][2**(i+1) - 1 : 2**i];
-            assign count[i] = (x[i] == 0) ? (count[i + 1] | 2**i) : count[i + 1];
+            assign count[i] = !(x[i] == 0);
             assign n[i - 1] = (x[i] == 0) ? n[i][2**i - 1 : 0] : x[i];
         end
     end
 endgenerate
 
-assign cnt = (in == 0) ? 6'd32 : count[0];
+assign count[WIDTH] = 1'b1;
+assign cnt = (in == 0) ? 6'd32 : ~count;
 
 endmodule
 
