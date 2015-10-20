@@ -17,11 +17,11 @@ wire [31:0] temp_result [5:0];
 assign op = {shift_op[0] || shift_op[1], shift_op[0] ^~ shift_op[1]};
 
 
-assign s1  = {op & {2{shift_amount[0]}}};
-assign s2  = {op & {2{shift_amount[1]}}};
-assign s4  = {op & {2{shift_amount[2]}}};
-assign s8  = {op & {2{shift_amount[3]}}};
-assign s16 = {op & {2{shift_amount[4]}}};
+assign s[0]  = {op & {2{shift_amount[0]}}};
+assign s[1]  = {op & {2{shift_amount[1]}}};
+assign s[2]  = {op & {2{shift_amount[2]}}};
+assign s[3]  = {op & {2{shift_amount[3]}}};
+assign s[4] = {op & {2{shift_amount[4]}}};
 
 reg sign;
 always @(shift_op or shift_in)

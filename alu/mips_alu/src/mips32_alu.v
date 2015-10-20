@@ -62,7 +62,7 @@ mips32_alu_ctrl c0 (
     .ALU_ctr(ALU_ctr)
 );
 
-always @(ALU_ctr or cntlz or and_out or or_out or xor_out or nor_out or Adder_out or sign_extend) begin
+always @(ALU_ctr or cntlz or and_out or or_out or xor_out or nor_out or Adder_out or sign_extend or less_out) begin
     case (ALU_ctr)
        3'd0: ALU_out = cntlz;
        3'd1: ALU_out = xor_out;

@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module misp_cpu_top (
     input clk,
     input reset,
@@ -6,11 +8,11 @@ module misp_cpu_top (
 
 // PC: the current instruction address
 // PC_in: the next instruction address to be calculated
-reg [31:0] PC;
+reg [31:0] PC;  // PC will not act like a real memory?
 wire [31:0] PC_in;
 always @(negedge clk or posedge reset) begin: update_pc
     if (reset == 1) begin
-        PC <= 0;
+        PC <= 32'd0;
     end
     else begin
         PC <= PC_in;
@@ -20,7 +22,7 @@ end
 //
 // Instruction Memory
 //
-wire [31:0] IR;  // Instruction Bus
+wire [31:0] IR;   // Instruction Bus
 ideal_instr_mem mem (
     .address(PC),
     .dword(IR)
@@ -44,6 +46,7 @@ wire Jump, Extend_sel, Rd_addr_sel, Rt_addr_sel, ALU_Shift_sel, Shift_amount_sel
 wire [1:0] B_in_sel, Shift_op;
 wire [2:0] condition;
 wire [3:0] ALU_op, Rd_byte_w_en;
+wire Overflow_out;  // Declare here for right connection
 controller ctrl (
     .IR(IR),                              // [in] I want more information
     .Overflow_out(Overflow_out),          // [in] The overflow signal sent by ALU
@@ -116,7 +119,7 @@ end
 //
 // ALU
 //
-wire Less, Zero, Overflow_out;
+wire Less, Zero;
 wire [31:0] ALU_out;
 mips32_alu alu (
     .ALU_op(ALU_op),

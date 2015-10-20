@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module controller (
     input     [31:0] IR,                // I want more information
     input            Overflow_out,      // The overflow signal sent by ALU
@@ -94,13 +96,13 @@ assign Rd_byte_en_sel[1] = ((Op == ALU) && {Func[4:2], Func[0]})  // AND or SUB,
 assign Rd_byte_en_sel[0] = (Op[5:2] == 4'b0001)  // BXX other than BLG
                            || (Op == BLG)        // BLG is 6'b000001
                            || (Op == JMP);       // JMP
-assign Rd_byte_en = {4{Rd_byte_en_sel[1] & Overflow_out}}  // Rd_byte_en_sel[1] = 1 allows Overflow_out to pass
+assign Rd_byte_w_en = {4{Rd_byte_en_sel[1] & Overflow_out}}  // Rd_byte_en_sel[1] = 1 allows Overflow_out to pass
                     | {4{!Rd_byte_en_sel[1] & Rd_byte_en_sel[0]}};  // ...[1] = 0 allows ...[0] to pass, exclusively.
 
 //
 // condition
 //
-always @(Op) begin
+always @(Op, IR) begin
     case (Op)
     // The IR[16] of BLTZ is 0B while 1B in BGEZ
     // The BLTZ and BGEZ can only be distinguished from this bit
@@ -167,6 +169,7 @@ always @(arith_op_masked, Func[0], IR[6]) begin
     LUI:       ALU_op = 4'b0000;  // LUI
     CLZ:       ALU_op = {3'b001, Func[0]};  // 0: CLZ, 1: CLO
     SE:        ALU_op = {3'b101, IR[6]};    // 0: SEB, 1: SEH
+    default:   ALU_op = 4'b0000;
     endcase
 end
 
@@ -191,9 +194,11 @@ wire is_shift;
 assign is_shift = !(|Func[5:3]);
 always @(arith_mask, is_shift) begin
     case ({arith_mask, is_shift})
-    2'b0x: ALU_Shift_sel = 1'bx;
+    2'b00: ALU_Shift_sel = 1'bx;
+    2'b01: ALU_Shift_sel = 1'bx;
     2'b10: ALU_Shift_sel = 1'b0;
     2'b11: ALU_Shift_sel = 1'b1;
+    default: ALU_Shift_sel = 1'bx;
     endcase
 end
 
