@@ -1,7 +1,6 @@
 VFILE := $(shell find ./cpu/src -name "*.v")
 VFILE := $(VFILE) $(shell find ./alu/mips_alu/src -name "*.v")
 VFILE := $(VFILE) $(shell find ./shifter/src/mips_shift_32 -name "*.v")
-DIR := ./shifter/include
-HFILE := $(shell find $(DIR) -name "*.h")
+VFILE := $(VFILE) $(shell find ./regfile/mips_32x32/src -name "*.v")
 test: $(VFILE)
 	@iverilog $(VFILE) -I$(DIR)
