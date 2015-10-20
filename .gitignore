@@ -83,3 +83,8 @@ s is an example .gitignore file for Vivado, please treat it as an example as
 !*.elf
 !*.bmm
 !*.xmp
+!*.pl
+!*.py
+!*.vim
+!*.rb
+!makefile
