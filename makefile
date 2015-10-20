@@ -1,5 +1,7 @@
-VFILE := $(shell find . -name "*.v")
-HFILE := $(shell find . -name "*.h")
-INCLUDE_DIR := $(shell find . -type d -name "include")
+VFILE := $(shell find ./cpu/src -name "*.v")
+VFILE := $(VFILE) $(shell find ./alu/mips_alu/src -name "*.v")
+VFILE := $(VFILE) $(shell find ./shifter/src/mips_shift_32 -name "*.v")
+DIR := ./shifter/include
+HFILE := $(shell find $(DIR) -name "*.h")
 test: $(VFILE)
-	@iverilog $(VFILE) -I $(INCLUDE_DIR)
+	@iverilog $(VFILE) -I$(DIR)

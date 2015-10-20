@@ -1,8 +1,5 @@
 `timescale 1ns / 1ps
 
-`define BIT 32
-`include "helper.vh"
-
 module mips32_shift (
     input [31:0] shift_in,
     input [4:0] shift_amount,
@@ -10,13 +7,15 @@ module mips32_shift (
     output [31:0] shift_out
 );
 
-wire [1:0] s1, s2, s4, s8, s16, op;
-wire [31:0] shift_out1, shift_out2, shift_out4, shift_out8;
+wire [1:0] s [4:0];
+wire [1:0] op;
+wire [31:0] temp_result [5:0];
 
 // this operation will make the logic shift right and
 // arithmetic shift right share the same switch code as
 // the sign extension can be calculate by other curcuits.
 assign op = {shift_op[0] || shift_op[1], shift_op[0] ^~ shift_op[1]};
+
 
 assign s1  = {op & {2{shift_amount[0]}}};
 assign s2  = {op & {2{shift_amount[1]}}};
@@ -35,10 +34,22 @@ begin
     endcase
 end
 
-`shift_inst_helper(1,s,shift_in,shift_out1);
-`shift_inst_helper(2,s,shift_out1,shift_out2);
-`shift_inst_helper(4,s,shift_out2,shift_out4);
-`shift_inst_helper(8,s,shift_out4,shift_out8);
-`shift_inst_helper(16,s,shift_out8,shift_out);
+assign temp_result[0] = shift_in;
+
+genvar i;
+generate
+    for (i = 0; i < 5; i = i + 1) begin
+        mips32_shift_mux inst (
+            .switch(s[i]),
+            .shift0(temp_result[i]),
+            .shift1({temp_result[i][32 - 1 - 2**i : 0], {2**i{1'b0}}}),
+            .shift2({{2**i{sign}}, temp_result[i][32 - 1 : 2**i]}),
+            .shift3({temp_result[i][2**i - 1 : 0], temp_result[i][32 - 1 : 2**i]}),
+            .shift_out(temp_result[i + 1])
+        );
+    end
+endgenerate
+
+assign shift_out = temp_result[5];
 
 endmodule
