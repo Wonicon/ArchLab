@@ -1,1 +1,0 @@
---debug "typical" --relax -L "xil_defaultlib" -L "unisims_ver" -L "unimacro_ver" -L "secureip" --snapshot "test_arm_shift_32_behav" --prj "G:/Lab2/project/arm_shift_32/arm_shift_32.sim/sim_1/behav/test_arm_shift_32.prj" "xil_defaultlib.test_arm_shift_32" "xil_defaultlib.glbl" 
