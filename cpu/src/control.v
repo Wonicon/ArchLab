@@ -1,4 +1,4 @@
-module control (
+module controller (
     input     [31:0] IR,                // I want more information
     input            Overflow_out,      // The overflow signal sent by ALU
     output           Jump,              // Enable absolute jump when Jump = 1
