@@ -1,0 +1,5 @@
+VFILE := $(shell find . -name "*.v")
+HFILE := $(shell find . -name "*.h")
+INCLUDE_DIR := $(shell find . -type d -name "include")
+test: $(VFILE)
+	@iverilog $(VFILE) -I $(INCLUDE_DIR)

@@ -5,13 +5,13 @@
 // Just for test.
 //
 
-module ideal_instr_mem #(parameter SIZE) (
+module ideal_instr_mem #(parameter SIZE = 128) (
     input [31:0] address,
     output [31:0] dword
 );
 
 // Addressing based on dword
-reg [31:0] mem [127:0];
+reg [31:0] mem [SIZE - 1:0];
 
 assign dword = mem[ address[31:2] ];
 
