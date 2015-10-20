@@ -1,6 +1,6 @@
-*
 *.*
-*/*
+*
+!*/
 !*.v
 !*.h
 !*.md
@@ -8,6 +8,6 @@
 !*.py
 !*.pl
 !*.txt
-!makefile*
+![Mm]akefile*
 !.gitignore
 !*.xls[x]
