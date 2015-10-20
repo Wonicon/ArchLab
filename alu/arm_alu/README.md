@@ -110,15 +110,6 @@ negative和zero这种应该是和ALU_out相关而不是和内部加法器的结�
 然而，基于值而不是选择器的合并，我也只找到了这么一个情况，用取负使能按位异或来取反也算是用值来合并，
 但是我感觉在宽总线的情况下还是选择器优势更大些。
 
-### 关于第二个操作数
-
-实验讲义上称其作移位操作数，我擅自称其为Rs，这个操作数可以级联移位器。以下是手册上的表述：
-
-```
-Of the two source operands, one is always a register. The other is called a shifter operand and is either an immediate value or a register.
-If the second operand is a register value, it can have a shift applied to it.
-```
-
 ### 其它
 
 目前实验实现值得商榷的地方就是非算术运算时是否要控制加法器的行为。
