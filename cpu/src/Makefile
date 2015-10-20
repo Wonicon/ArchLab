@@ -1,2 +1,2 @@
 test:
-	@iverilog control.v
+	@iverilog control.v cpu_top.v
