@@ -31,10 +31,9 @@ ideal_instr_mem mem (
 //
 // Instruction Format: Rs, Rt, Rd
 //
-wire [4:0] Rd_instr, Rt_instr, Rs_instr;
-assign Rd_instr = IR[15:11];
-assign Rt_instr = IR[20:16];
-assign Rs_instr = IR[25:21];
+wire [4:0] Rd_instr = IR[15:11];
+wire [4:0] Rt_instr = IR[20:16];
+wire [4:0] Rs_instr = IR[25:21];
 
 
 //
@@ -98,14 +97,13 @@ register_mips32 regfile (
 //
 // Prepare the second operand B for ALU
 //
-wire [31:0] Ex_offset,  // As Sign-Extended immediate operand
-            Imm_ex;     // Used by LUI
-reg [31:0] B_in;        // Selected data sent to ALU
 
-assign Ex_offset = Extend_sel ? {{15{IR[15]}}, IR[15:0]} // Sign extending
-                              : {15'd0, IR[15:0]};
+// As Sign-Extended immediate operand
+wire [31:0] Ex_offset = Extend_sel ? {{15{IR[15]}}, IR[15:0]} // Sign extending
+                                   : {15'd0, IR[15:0]};
+wire [31:0] Imm_ex = {IR[15:0], 15'd0};  // Used by LUI
 
-assign Imm_ex = {IR[15:0], 15'd0};
+reg [31:0] B_in;  // Selected data sent to ALU
 always @(B_in_sel, Rt_out, Ex_offset, Imm_ex) begin: select_b_in
     case (B_in_sel)
     2'd0: B_in = Rt_out;
@@ -135,10 +133,9 @@ mips32_alu alu (
 //
 // Shifter
 //
-wire [4:0] Shift_amount;
 wire [31:0] Shift_out;
-assign Shift_amount = Shift_amount_sel ? Rs_out[4:0]  // Shamt from register
-                                       : IR[10:6];    // Const shamt
+wire [4:0] Shift_amount = Shift_amount_sel ? Rs_out[4:0]  // Shamt from register
+                                                          : IR[10:6];    // Const shamt
 
 mips32_shift shifter (
     .shift_in(Rt_out),
@@ -180,10 +177,9 @@ end
 // PC_normal: a common next PC which plus 4.
 // PC_branch: the PC determined by branch instruction
 // PC_jmp: the PC determined by jmp instruction
-wire [31:0] PC_normal, PC_branch, PC_jmp;
-assign PC_normal = PC + 4;
-assign PC_branch = PC_normal + {Ex_offset[29:0], 2'd0};
-assign PC_jmp = {PC[31:28], IR[25:0], 2'd0};
+wire [31:0] PC_normal = PC + 4;
+wire [31:0] PC_branch = PC_normal + {Ex_offset[29:0], 2'd0};
+wire [31:0] PC_jmp = {PC[31:28], IR[25:0], 2'd0};
 
 assign PC_in = Jump ? PC_jmp                // PC_jmp
                     : cond_en ? PC_branch   // PC_branch

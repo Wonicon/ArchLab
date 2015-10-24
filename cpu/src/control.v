@@ -16,10 +16,9 @@ module controller (
     output     [3:0] Rd_byte_w_en       // Enable writing to R[Rd] when Rd_byte_w_en is 1111B
 );
 
-wire [5:0] Op;    // The opecode of instructions, which equals to IR[31:16]
-wire [5:0] Func;  // Decide ALU_op
-assign Op = IR[31:26];
-assign Func = IR[5:0];
+wire [5:0] Op = IR[31:26];    // The opecode of instructions, which equals to IR[31:16]
+wire [5:0] Func = IR[5:0];  // Decide ALU_op
+
 //
 // Opecode
 //
@@ -118,20 +117,19 @@ end
 //
 // Shift_op
 //
-wire arith_mask;  // When it is arith operation, let something pass
-wire [5:0] arith_op_masked;  // The signal passed mask links to it
-assign arith_mask = !(|Op);
-
-// Let XXI and FUNC_XXX to be in one bus
-assign arith_op_masked = ({5{arith_mask}} & Func) | Op;
+// A remapped opcode, when Op == 6'b000000, it uses Func field;
+//                    when Op != 6'b000000, it uses Op itself.
+//
+wire is_arith = !(|Op);
+wire [5:0] arith_op_masked = is_arith ? Func : Op;
 always @(arith_op_masked, IR[21], IR[6]) begin
     case (arith_op_masked)
     FUNC_SLL : Shift_op = 2'b00;
     FUNC_SLLV: Shift_op = 2'b00;
     FUNC_SRA : Shift_op = 2'b10;
     FUNC_SRAV: Shift_op = 2'b10;
-    FUNC_SRL : Shift_op = {IR[21], 1'b1};  // Can become 2'b11
-    FUNC_SRLV: Shift_op = {IR[6],  1'b1};  // Can become 2'b11
+    FUNC_SRL : Shift_op = {IR[21], 1'b1};  // Can become 2'b11, ROTR
+    FUNC_SRLV: Shift_op = {IR[6],  1'b1};  // Can become 2'b11, ROTRV
     default: Shift_op = 6'bxxxxxx;
     endcase
 end
@@ -176,11 +174,10 @@ end
 //
 // B_in_sel
 //
-wire is_lui;
-assign is_lui = &Op[2:0];  // lui is 001 111, 111 is distinguished among xxi.
-assign B_in_sel = (Op[4:3] != 2'b01) ? 2'b00 : (  // arith without imm, cl?, se?
-                  (is_lui) ? 2'b10 :  // lui, shift_imm
-                  2'b01);  // ext_imm
+wire is_lui = &Op[2:0];  // lui is 001 111, 111 is distinguished among xxi.
+assign B_in_sel = (Op[4:3] != 2'b01) ? 2'b00 :  // arith without imm, cl?, se?
+                  (is_lui) ? 2'b10 :            // lui, shift_imm
+                  2'b01;                        // ext_imm
 
 //
 // Shift_amount_sel, ALU_Shift_sel
@@ -190,10 +187,9 @@ assign B_in_sel = (Op[4:3] != 2'b01) ? 2'b00 : (  // arith without imm, cl?, se?
 assign Shift_amount_sel = Func[2];
 // We can simplify the Shift Func into 6'b000xxx because the missing 6'b000101 is
 // a float point instruction whose Op is not 6'b000000
-wire is_shift;
-assign is_shift = !(|Func[5:3]);
-always @(arith_mask, is_shift) begin
-    case ({arith_mask, is_shift})
+wire is_shift = !(|Func[5:3]);
+always @(is_arith, is_shift) begin
+    case ({is_arith, is_shift})
     2'b00: ALU_Shift_sel = 1'bx;
     2'b01: ALU_Shift_sel = 1'bx;
     2'b10: ALU_Shift_sel = 1'b0;
