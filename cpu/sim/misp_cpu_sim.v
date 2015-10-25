@@ -5,12 +5,9 @@ reg clk;
 reg reset;
 wire [31:0] trap, pc_p, ir_p;
 
-always begin 
-    #5 clk = ~clk;
-    $stop;
-end
+always #5 clk = ~clk;
 
-always @(posedge clk) $display("pc %x, ir %x", pc_p, ir_p);
+always @(posedge clk) $stop;
 
 misp_cpu_top cpu (
     .clk(clk),
