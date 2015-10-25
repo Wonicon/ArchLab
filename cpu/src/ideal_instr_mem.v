@@ -17,7 +17,7 @@ parameter RAM_ADDR_BITS = 10;
 
 reg [RAM_WIDTH-1:0] mem [(2**RAM_ADDR_BITS)-1:0];
 
-initial $readmemh("/home/whz/Projects/arch_lab/testbench4mips/single-cycle/ram.txt",mem, 0, 10);
+initial $readmemh("/home/whz/Projects/arch_lab/testbench4mips/single-cycle/ram.txt",mem);
 
 assign dword = mem[address];
 
