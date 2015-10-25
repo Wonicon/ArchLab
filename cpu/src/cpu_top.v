@@ -101,8 +101,8 @@ register_mips32 regfile (
 //
 
 // As Sign-Extended immediate operand
-wire [31:0] Ex_offset = Extend_sel ? {{15{IR[15]}}, IR[15:0]} // Sign extending
-                                   : {15'd0, IR[15:0]};
+wire [31:0] Ex_offset = Extend_sel ? {{16{IR[15]}}, IR[15:0]} // Sign extending
+                                   : {16'd0, IR[15:0]};
 wire [31:0] Imm_ex = {IR[15:0], 16'd0};  // Used by LUI
 
 reg [31:0] B_in;  // Selected data sent to ALU
