@@ -5,7 +5,10 @@ reg clk;
 reg reset;
 wire [31:0] trap, pc_p, ir_p;
 
-always #5 clk = ~clk;
+always begin 
+    #5 clk = ~clk;
+    $stop;
+end
 
 always @(posedge clk) $display("pc %x, ir %x", pc_p, ir_p);
 
