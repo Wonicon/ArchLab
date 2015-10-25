@@ -1,0 +1,19 @@
+#-----------------------------------------------------------
+# Vivado v2015.2 (64-bit)
+# SW Build 1266856 on Fri Jun 26 16:35:25 MDT 2015
+# IP Build 1264090 on Wed Jun 24 14:22:01 MDT 2015
+# Start of session at: Sun Oct 25 20:20:35 2015
+# Process ID: 16347
+# Log file: /home/whz/Projects/arch_lab/tmp/vivado.log
+# Journal file: /home/whz/Projects/arch_lab/tmp/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /home/whz/Projects/arch_lab/Project/single_cycle_misp32/single_cycle_misp32.xpr
+launch_simulation
+open_wave_config /home/whz/Projects/arch_lab/Project/single_cycle_misp32/mips_cpu_sim_behav.wcfg
+source mips_cpu_sim.tcl
+synth_design -rtl -name rtl_1
+close_sim
+launch_simulation
+open_wave_config /home/whz/Projects/arch_lab/Project/single_cycle_misp32/mips_cpu_sim_behav.wcfg
+source mips_cpu_sim.tcl

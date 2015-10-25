@@ -2,26 +2,23 @@
 
 //
 // ideal_instr_mem
-// 
+//
 // A memory implemented using registers, which will adjust the address to align to 4 bytes.o
 // Just for test.
 //
 
-module ideal_instr_mem #(parameter SIZE = 32) (
-    input [31:0] address,
+module ideal_instr_mem (
+    input [29:0] address,
     output [31:0] dword
 );
 
-// Addressing based on dword
-reg [7:0] mem [SIZE - 1:0];
+parameter RAM_WIDTH = 32;
+parameter RAM_ADDR_BITS = 10;
 
-integer i;
-initial begin
-    for (i = 0; i < SIZE; i = i + 1) begin
-        mem[i] = i;
-    end
-end
+reg [RAM_WIDTH-1:0] mem [(2**RAM_ADDR_BITS)-1:0];
 
-assign dword = {mem[address], mem[address+1], mem[address+2], mem[address+3]};
+initial $readmemh("/home/whz/Projects/arch_lab/testbench4mips/single-cycle/ram.txt",mem, 0, 10);
+
+assign dword = mem[address];
 
 endmodule

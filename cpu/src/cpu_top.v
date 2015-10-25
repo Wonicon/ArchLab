@@ -3,28 +3,29 @@
 module misp_cpu_top (
     input clk,
     input reset,
-    output [31:0] outp
+    output [31:0] outp,
+    output [31:0] pc_p, ir_p
 );
 
 // PC: the current instruction address
 // PC_in: the next instruction address to be calculated
 reg [31:0] PC;  // PC will not act like a real memory?
 wire [31:0] PC_in;
-always @(negedge clk or posedge reset) begin: update_pc
-    if (reset == 1) begin
+always @(negedge clk or posedge reset)
+    if (reset == 1)
         PC <= 32'd0;
-    end
-    else begin
+    else
         PC <= PC_in;
-    end
-end
 
+
+assign pc_p = PC;
+assign ir_p = IR;
 //
 // Instruction Memory
 //
 wire [31:0] IR;   // Instruction Bus
 ideal_instr_mem mem (
-    .address(PC),
+    .address(PC[31:2]),
     .dword(IR)
 );
 
@@ -82,6 +83,7 @@ assign Rd_real = Rd_addr_sel ? Rd_instr
 wire [31:0] ALU_Shift_out,  // The output from alu or shifter depeding on regfile
             Rs_out,
             Rt_out;
+
 register_mips32 regfile (
     .Rs_addr(Rs_instr),
     .Rt_addr(Rt_real),

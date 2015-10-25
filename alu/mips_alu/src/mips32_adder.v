@@ -13,7 +13,6 @@ module mips32_adder #(parameter DATAWIDTH = 32) (
 
 reg [DATAWIDTH:0] result;
 always @(A_in or B_in or Cin) begin
-    $display(B_in);
     result = {1'b0, A_in} + {1'b0, B_in} + Cin;
 end
 
