@@ -188,8 +188,9 @@ assign Shift_amount_sel = Func[2];
 // We can simplify the Shift Func into 6'b000xxx because the missing 6'b000101 is
 // a float point instruction whose Op is not 6'b000000
 wire is_shift = !(|Func[5:3]);
-always @(is_arith, is_shift) begin
-    case ({is_arith, is_shift})
+wire is_arith_i = Op[5:3] == 3'b001;
+always @(*) begin
+    case ({is_arith | is_arith_i, is_shift})
     2'b00: ALU_Shift_sel = 1'bx;
     2'b01: ALU_Shift_sel = 1'bx;
     2'b10: ALU_Shift_sel = 1'b0;

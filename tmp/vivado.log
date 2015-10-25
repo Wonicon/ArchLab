@@ -548,3 +548,7 @@ pc 00000004, ir 1000fffe
 INFO: [USF-XSim-96] XSim completed. Design snapshot 'mips_cpu_sim_behav' loaded.
 INFO: [USF-XSim-97] XSim simulation ran for 1000ns
 launch_simulation: Time (s): cpu = 00:00:05 ; elapsed = 00:00:08 . Memory (MB): peak = 6201.008 ; gain = 0.000 ; free physical = 542 ; free virtual = 9212
+close_sim
+INFO: [Simtcl 6-16] Simulation closed
+exit
+INFO: [Common 17-206] Exiting Vivado at Sun Oct 25 20:40:58 2015...

@@ -17,3 +17,4 @@ close_sim
 launch_simulation
 open_wave_config /home/whz/Projects/arch_lab/Project/single_cycle_misp32/mips_cpu_sim_behav.wcfg
 source mips_cpu_sim.tcl
+close_sim
