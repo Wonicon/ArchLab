@@ -12,7 +12,6 @@ always @(posedge clk) $display("pc %x, ir %x", pc_p, ir_p);
 misp_cpu_top cpu (
     .clk(clk),
     .reset(reset),
-    .trap(trap),
     .pc_p(pc_p),
     .ir_p(ir_p)
 );
