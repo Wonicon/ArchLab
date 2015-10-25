@@ -187,10 +187,12 @@ assign B_in_sel = (Op[4:3] != 2'b01) ? 2'b00 :  // arith without imm, cl?, se?
 assign Shift_amount_sel = Func[2];
 // We can simplify the Shift Func into 6'b000xxx because the missing 6'b000101 is
 // a float point instruction whose Op is not 6'b000000
+// But the arithmetic instruction with imm operand has nothing to do with Func field
+// which means the Func field in *i instructions may cause an unexpected is_shift == 1
 wire is_shift = !(|Func[5:3]);
 wire is_arith_i = Op[5:3] == 3'b001;
 always @(*) begin
-    case ({is_arith | is_arith_i, is_shift})
+    case ({is_arith | is_arith_i, is_shift & !is_arith_i})
     2'b00: ALU_Shift_sel = 1'bx;
     2'b01: ALU_Shift_sel = 1'bx;
     2'b10: ALU_Shift_sel = 1'b0;
