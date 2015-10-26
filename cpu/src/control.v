@@ -191,8 +191,9 @@ assign Shift_amount_sel = Func[2];
 // which means the Func field in *i instructions may cause an unexpected is_shift == 1
 wire is_shift = !(|Func[5:3]);
 wire is_arith_i = Op[5:3] == 3'b001;
+wire is_alu = is_arith || is_arith_i || Op == CLZ || Op == SE;
 always @(*) begin
-    case ({is_arith | is_arith_i, is_shift & !is_arith_i})
+    case ({is_alu, is_shift & !is_arith_i})
     2'b00: ALU_Shift_sel = 1'bx;
     2'b01: ALU_Shift_sel = 1'bx;
     2'b10: ALU_Shift_sel = 1'b0;
