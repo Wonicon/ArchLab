@@ -88,7 +88,7 @@ wire [1:0] Rd_byte_en_sel;
 //   ADD:  000000 100000
 //   SUB:  000000 100010
 //   ADDI: 001000 XXXXXX
-assign Rd_byte_en_sel[1] = ((Op == ALU) && {Func[4:2], Func[0]})  // AND or SUB, Func[5] is always 1
+assign Rd_byte_en_sel[1] = ((Op == ALU) && {Func[5:2], Func[0]})  // AND or SUB, Func[5] is always 1
                            || (Op == ADDI);  // ADDI, although Op[5] is always zero...
 // Rd_byte can always be 4'b1111:
 //   BXX can be simplified as 6'b0001xx and 6'b000001
