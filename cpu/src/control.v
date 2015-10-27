@@ -166,7 +166,7 @@ always @(arith_op_masked, Func[0], IR[6]) begin
     XORI:      ALU_op = 4'b1001;  // XOR
     LUI:       ALU_op = 4'b0000;  // LUI
     CLZ:       ALU_op = {3'b001, Func[0]};  // 0: CLZ, 1: CLO
-    SE:        ALU_op = {3'b101, IR[6]};    // 0: SEB, 1: SEH
+    SE:        ALU_op = {3'b101, IR[9]};    // 0: SEB, 1: SEH
     default:   ALU_op = 4'b0000;
     endcase
 end
