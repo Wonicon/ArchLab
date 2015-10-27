@@ -37,8 +37,8 @@ assign less_out = Less ? 32'd1 : 32'd0;
 reg [DATAWIDTH - 1:0] sign_extend;
 always @(ALU_op or B_in) begin
     case (ALU_op[0])
-    SEB: sign_extend = {{(DATAWIDTH / 4){B_in[DATAWIDTH / 4 - 1]}}, B_in[DATAWIDTH / 4 - 1:0]};
-    SEH: sign_extend = {{(DATAWIDTH / 2){B_in[DATAWIDTH / 2 - 1]}}, B_in[DATAWIDTH / 2 - 1:0]}; 
+    SEB: sign_extend = {{(DATAWIDTH - DATAWIDTH / 4){B_in[DATAWIDTH / 4 - 1]}}, B_in[DATAWIDTH / 4 - 1:0]};
+    SEH: sign_extend = {{(DATAWIDTH - DATAWIDTH / 2){B_in[DATAWIDTH / 2 - 1]}}, B_in[DATAWIDTH / 2 - 1:0]}; 
     endcase
 end
 

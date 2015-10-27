@@ -233,19 +233,17 @@ assign Rd_addr_sel = Op[4] || !Op[3];
 //
 // Extend_sel
 //
-// Much like Rd_addr_sel, but contains all the branch instruction.
-//
-
-// assign Extend_sel = 1'b1;
-
-// Branch instruction opecode can be simplified as 0001xx and 000001,
-// All the arithmetic operation can set this signal to 1, so 000001 -> 00000x,
-// => 001xxx, 0001xx, 00000x
-// note that 000010 is jmp and 000011 is jal, which also don't care Extend_sel
-// => 00xxxx
-// This assignment takes all the instructions implemented into consideraton
-// and avoid covering future instructions
-assign Extend_sel = (Op[5:4] == 2'b00);
+// The instructions using imm all have the opcode 6'b001xxx,
+// but the arithmetic instructions use sign-extended imm while
+// the logic instructions use the zero-extended imm. The previous
+// ones have an opcode starting with 4'b0010, and the later starting
+// with 4'b0011. Taking into consideration that no instructions
+// starting with 2'b01 will use the imm_ex input, and currently we
+// don't have instructions with opcode starting with 2'b11, we can
+// just compare the 2 bits in the middle to find whether it is an
+// arithmetic instructions needing sign-extending or logic instructions
+// needing zero-extending
+assign Extend_sel = Op[3:2] == 2'b10;
 
 //
 // J

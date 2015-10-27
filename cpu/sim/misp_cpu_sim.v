@@ -6,7 +6,7 @@ reg reset;
 wire [31:0] trap, pc_p, ir_p;
 
 always #5 clk = ~clk;
-
+always @(posedge clk) if (pc_p == 32'hf3c) $stop;
 misp_cpu_top cpu (
     .clk(clk),
     .reset(reset),
