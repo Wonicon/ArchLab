@@ -42,7 +42,7 @@ wire [4:0] Rs_instr = IR[25:21];
 //
 // See the description of these wires besides instance of controller.
 // Or get it in the module controller.
-wire Jump, Extend_sel, Rd_addr_sel, Rt_addr_sel, ALU_Shift_sel, Shift_amount_sel;
+wire Jump, Extend_sel, Rd_addr_sel, Rt_addr_sel, ALU_Shift_sel, Shift_amount_sel, Rd_in_sel, mem_w_en;
 wire [1:0] B_in_sel, Shift_op;
 wire [2:0] condition;
 wire [3:0] ALU_op, Rd_byte_w_en;
@@ -60,7 +60,9 @@ controller ctrl (
     .ALU_op(ALU_op),                      // [out] Select the ALU operation
     .Shift_op(Shift_op),                  // [out] Select the shift operation
     .condition(condition),                // [out] Select which condition to judge branch
-    .Rd_byte_w_en(Rd_byte_w_en)           // [out] Enable writing to R[Rd] when Rd_byte_w_en is 1111B
+    .Rd_byte_w_en(Rd_byte_w_en),          // [out] Enable writing to R[Rd] when Rd_byte_w_en is 1111B
+    .Rd_in_sel(Rd_in_sel),
+    .mem_w_en(mem_w_en)
 );
 
 
@@ -82,13 +84,17 @@ assign Rd_real = Rd_addr_sel ? Rd_instr
 //
 wire [31:0] ALU_Shift_out,  // The output from alu or shifter depeding on regfile
             Rs_out,
-            Rt_out;
+            Rt_out,
+            mem_out,
+            Rd_in;
+
+assign Rd_in = Rd_in_sel ? mem_out : ALU_Shift_out;
 
 register_mips32 regfile (
     .Rs_addr(Rs_instr),
     .Rt_addr(Rt_real),
     .Rd_addr(Rd_real),
-    .Rd_in(ALU_Shift_out),  // Actual write happens when a new cycle starts
+    .Rd_in(Rd_in),  // Actual write happens when a new cycle starts
     .Rd_Byte_w_en(Rd_byte_w_en),
     .clk(clk),
     .Rs_out(Rs_out),
@@ -191,4 +197,17 @@ assign PC_in = Jump ? PC_jmp                // PC_jmp
 // For test purpose
 //
 assign outp = ALU_Shift_out;
+
+//
+// Memory
+//
+ideal_instr_mem storage (
+    .address(ALU_out),
+    .clk(clk),
+    .w_en(mem_w_en),
+    .data_in(Rt_out),
+    .dword(mem_out)
+);
+
+
 endmodule

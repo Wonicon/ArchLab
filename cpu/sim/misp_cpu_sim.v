@@ -6,7 +6,8 @@ reg reset;
 wire [31:0] trap, pc_p, ir_p;
 
 always #5 clk = ~clk;
-// always @(posedge clk) if (pc_p == 32'hf3c) $stop;
+//always @(posedge clk) if (pc_p == 32'h18) $stop;
+//always @(negedge clk) $stop;
 misp_cpu_top cpu (
     .clk(clk),
     .reset(reset),

@@ -13,7 +13,9 @@ module controller (
     output reg [3:0] ALU_op,            // Select the ALU operation
     output reg [1:0] Shift_op,          // Select the shift operation
     output reg [2:0] condition,         // Select which condition to judge branch
-    output     [3:0] Rd_byte_w_en       // Enable writing to R[Rd] when Rd_byte_w_en is 1111B
+    output     [3:0] Rd_byte_w_en,      // Enable writing to R[Rd] when Rd_byte_w_en is 1111B
+    output           Rd_in_sel,          // Select memory or alu/shift
+    output           mem_w_en
 );
 
 wire [5:0] Op = IR[31:26];    // The opecode of instructions, which equals to IR[31:16]
@@ -41,6 +43,10 @@ parameter XORI  = 6'b001110;  // XORI using Imm
 parameter LUI   = 6'b001111;
 parameter CLZ   = 6'b011100;  // CLZ and CLO; distinguished by Func
 parameter SE    = 6'b011111;  // SEB and SEH; distinguished by Rd
+// Bonus
+// The two will use rt field and imm field to calc address
+parameter LW    = 6'b100011;
+parameter SW    = 6'b101011;
 
 //
 // Func
@@ -76,7 +82,7 @@ parameter FUNC_ROTRV = 6'b000110;  // wtf IR[10:6]  = 5'b0001
 //
 
 // Rd_byte_en_sel: select the output of Rd_byte_en
-//   00: 4'b0001
+//   00: 4'b0000
 //   01: 4'b1111
 //   1x: according to Overflow
 // NOTE: Rd_byte_en = 4'b0000 allows writing to R[Rd]
@@ -89,12 +95,16 @@ wire [1:0] Rd_byte_en_sel;
 //   SUB:  000000 100010
 //   ADDI: 001000 XXXXXX
 assign Rd_byte_en_sel[1] = ((Op == ALU) && {Func[5:2], Func[0]})  // AND or SUB, Func[5] is always 1
+                           || (Op == LW)
                            || (Op == ADDI);  // ADDI, although Op[5] is always zero...
+
 // Rd_byte can always be 4'b1111:
 //   BXX can be simplified as 6'b0001xx and 6'b000001
 assign Rd_byte_en_sel[0] = (Op[5:2] == 4'b0001)  // BXX other than BLG
                            || (Op == BLG)        // BLG is 6'b000001
+                           || (Op == SW)
                            || (Op == JMP);       // JMP
+
 assign Rd_byte_w_en = {4{Rd_byte_en_sel[1] & Overflow_out}}  // Rd_byte_en_sel[1] = 1 allows Overflow_out to pass
                     | {4{!Rd_byte_en_sel[1] & Rd_byte_en_sel[0]}};  // ...[1] = 0 allows ...[0] to pass, exclusively.
 
@@ -143,13 +153,13 @@ always @(arith_op_masked, Func[0], IR[6]) begin
     FUNC_ADD:  ALU_op = 4'b1110;  // ADD
     FUNC_ADDU: ALU_op = 4'b0000;  // ADDU
     FUNC_SUB:  ALU_op = 4'b1111;  // SUB
-    FUNC_SUBU: ALU_op = 4'b0001;  // SUBU
+    FUNC_SUBU: ALU_op = (Op == LW) ? 4'b0000 : 4'b0001;  // SW or SUBU
     FUNC_AND:  ALU_op = 4'b0100;  // AND
     FUNC_OR:   ALU_op = 4'b0110;  // OR
     FUNC_XOR:  ALU_op = 4'b1001;  // XOR
     FUNC_NOR:  ALU_op = 4'b1000;  // NOR
     FUNC_SLT:  ALU_op = 4'b0101;  // SLT
-    FUNC_SLTU: ALU_op = 4'b0111;  // SLTU
+    FUNC_SLTU: ALU_op = (Op == SW) ? 4'b0000 : 4'b0111;  // LW or SLTU
     FUNC_TLT:  ALU_op = 4'b0001;  // SUBU
     FUNC_TLTU: ALU_op = 4'b0001;  // SUBU
     BLG:       ALU_op = 4'b0001;  // SUBU
@@ -160,7 +170,7 @@ always @(arith_op_masked, Func[0], IR[6]) begin
     ADDI:      ALU_op = 4'b1110;  // ADD
     ADDIU:     ALU_op = 4'b0000;  // ADDU
     SLTI:      ALU_op = 4'b0101;  // SLT
-    SLTIU:     ALU_op = 4'b0111;  // SLTU
+    SLTIU:     ALU_op = 4'b0111;  // LW or SLTU
     ANDI:      ALU_op = 4'b0100;  // AND
     ORI:       ALU_op = 4'b0110;  // OR
     XORI:      ALU_op = 4'b1001;  // XOR
@@ -174,10 +184,11 @@ end
 //
 // B_in_sel
 //
-wire is_lui = &Op[2:0];  // lui is 001 111, 111 is distinguished among xxi.
-assign B_in_sel = (Op[4:3] != 2'b01) ? 2'b00 :  // arith without imm, cl?, se?
-                  (is_lui) ? 2'b10 :            // lui, shift_imm
-                  2'b01;                        // ext_imm
+wire is_lui = &Op[2:0];  // lui is 001 111, 111 is distinguished among xxi, lw and sw avoid this.
+assign B_in_sel = (Op == SW || Op == LW) ? 2'b01 :
+                  (Op[5:3] != 3'b001) ? 2'b00 :  // arith without imm, cl?, se?
+                  (is_lui) ? 2'b10 :             // lui
+                  2'b01;                         // ext_imm, offset
 
 //
 // Shift_amount_sel, ALU_Shift_sel
@@ -189,11 +200,12 @@ assign Shift_amount_sel = Func[2];
 // a float point instruction whose Op is not 6'b000000
 // But the arithmetic instruction with imm operand has nothing to do with Func field
 // which means the Func field in *i instructions may cause an unexpected is_shift == 1
+wire is_mem = Op == LW || Op == SW;
 wire is_shift = !(|Func[5:3]);
 wire is_arith_i = Op[5:3] == 3'b001;
-wire is_alu = is_arith || is_arith_i || Op == CLZ || Op == SE;
+wire is_alu = is_arith || is_arith_i || Op == CLZ || Op == SE || is_mem;
 always @(*) begin
-    case ({is_alu, is_shift & !is_arith_i})
+    case ({is_alu, is_shift & !is_arith_i & !is_mem})
     2'b00: ALU_Shift_sel = 1'bx;
     2'b01: ALU_Shift_sel = 1'bx;
     2'b10: ALU_Shift_sel = 1'b0;
@@ -226,7 +238,7 @@ assign Rt_addr_sel = (Op == BLG);  // BLG contains BLTZ and BGEZ, both of them e
 // So a simple function is that we only recognize the instruction using imm, and let all the other situations to be 1
 //
 
-assign Rd_addr_sel = Op[4] || !Op[3];
+assign Rd_addr_sel = (Op[4] || !Op[3]) && !is_mem;
 //~~~~~~~~~~~~~~~~~~~~~~^~~ To avoid clz/clo, seb/seh
 
 
@@ -243,12 +255,27 @@ assign Rd_addr_sel = Op[4] || !Op[3];
 // just compare the 2 bits in the middle to find whether it is an
 // arithmetic instructions needing sign-extending or logic instructions
 // needing zero-extending
-assign Extend_sel = Op[3:2] == 2'b10;
+// But, don't forget the branch, sw and lw
+assign Extend_sel = (Op[5:2] == 2'b0010) || // arithmetic imm
+                    (Op[5:2] == 2'b001)  || // branch instr offset
+                    (Op == BLG)          || // branch instr offset
+                    (Op == SW)           || // sw mem offset
+                    (Op == LW);             // lw mem offset
 
 //
 // J
 // use JAL(000011) to simplify
 //
 assign Jump = (Op[5:1] == 5'b00001);
+
+//
+// Rd_in_sel
+//
+assign Rd_in_sel = (Op == LW);
+
+//
+// mem_w_en
+//
+assign mem_w_en = (Op == SW);
 
 endmodule
