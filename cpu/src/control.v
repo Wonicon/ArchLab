@@ -256,8 +256,8 @@ assign Rd_addr_sel = (Op[4] || !Op[3]) && !is_mem;
 // arithmetic instructions needing sign-extending or logic instructions
 // needing zero-extending
 // But, don't forget the branch, sw and lw
-assign Extend_sel = (Op[5:2] == 2'b0010) || // arithmetic imm
-                    (Op[5:2] == 2'b001)  || // branch instr offset
+assign Extend_sel = (Op[5:2] == 4'b0010) || // arithmetic imm
+                    (Op[5:3] == 3'b001)  || // branch instr offset
                     (Op == BLG)          || // branch instr offset
                     (Op == SW)           || // sw mem offset
                     (Op == LW);             // lw mem offset
