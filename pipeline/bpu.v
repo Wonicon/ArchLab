@@ -110,7 +110,8 @@ begin
     end
     else
     begin
-        bpu_table[update_tag] <= update_slot;
+        // 预测正确的情况, 将预测位维持在 1
+        bpu_table[update_tag][`PREDICT] <= 1'b1;
     end
 end
 
