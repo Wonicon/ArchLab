@@ -96,8 +96,8 @@ always @(negedge clk or posedge reset) begin
         bpu_predict[update_tag] <= ~update_predict;
     end
     else begin
-        // 预测正确的情况, 将预测位维持在 1
-        bpu_predict[update_tag] <= 1'b1;
+        // 预测正确的情况, 将预测位维持在 1, 只有有效的slot的预测位才采取这一行为
+        bpu_predict[update_tag] <= 1'b1 & bpu_valid[update_tag];
     end
 end
 
