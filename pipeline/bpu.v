@@ -59,10 +59,8 @@ module bpu(
 reg [`ENTRY_BUS] bpu_table [`TABLE_BUS];
 
 integer i;
-initial
-begin
-    for (i = 0; i < `NR_SLOT; i = i + 1)
-    begin
+initial begin
+    for (i = 0; i < `NR_SLOT; i = i + 1) begin
         bpu_table[i] = 0;
     end
 end
@@ -71,14 +69,11 @@ end
 wire [`TAG_WIDTH - 1 : 0] predict_tag = current_pc[`TAG_BUS];
 wire [`ENTRY_BUS] predict_slot = bpu_table[predict_tag];
 
-always @(*)
-begin
-   if (predict_slot[`VALID] == 1'b1)
-   begin
+always @(*) begin
+   if (predict_slot[`VALID] == 1'b1) begin
        predicted_pc = { predict_slot[`PREDICT_BUS], 2'b0 };
    end
-   else
-   begin
+   else begin
        predicted_pc = current_pc + 4;
    end
 end
@@ -87,29 +82,23 @@ end
 wire [`TAG_WIDTH - 1 : 0] update_tag = tag_pc[`TAG_BUS];
 wire [`ENTRY_BUS] update_slot = bpu_table[update_tag];
 
-always @(negedge clk or posedge reset)
-begin
-    if (reset)
-    begin
-        for (i = 0; i < `NR_SLOT; i = i + 1)
-        begin
+always @(negedge clk or posedge reset) begin
+    if (reset) begin
+        for (i = 0; i < `NR_SLOT; i = i + 1) begin
             bpu_table[i] <= 0;
         end
     end
-    else if (bpu_w_en)
-    begin
+    else if (bpu_w_en) begin
         // 有效位有效后一直有效
         bpu_table[update_tag][`VALID] <= 1'b1;
         // 预测位为 0 时立即更新, 之后容忍一次错误
-        if (update_slot[`PREDICT] == 1'b0)
-        begin
+        if (update_slot[`PREDICT] == 1'b0) begin
             bpu_table[update_tag][`PREDICT_BUS] <= next_pc[`PREDICT_BUS];
         end
         // 翻转预测位, 因为只有一位, 相当于加一
         bpu_table[update_tag][`PREDICT] <= ~update_slot[`PREDICT];
     end
-    else
-    begin
+    else begin
         // 预测正确的情况, 将预测位维持在 1
         bpu_table[update_tag][`PREDICT] <= 1'b1;
     end
