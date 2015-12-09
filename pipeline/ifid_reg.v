@@ -4,8 +4,8 @@
  * ifid 流水段寄存器
  * pc + 4直接实现在内部了
  */
- `define PC_WIDTH 32
- `define INSTR_WIDTH 32
+`define PC_WIDTH 32
+`define INSTR_WIDTH 32
 `define PC_BUS 31:0
 `define DATA_BUS 31:0
 `define JMP_SLICE 25:0
@@ -29,7 +29,7 @@ module ifid_reg (
         ifid_pc_4 = `PC_WIDTH'd4;
         ifid_instr <= `PC_WIDTH'd0;
     end
-    
+
     always @(negedge clk or posedge reset) begin
         if (reset || cu_flush) begin
             ifid_pc <= `PC_WIDTH'd0;
